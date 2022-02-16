@@ -7,6 +7,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   useColorScheme,
   View,
 } from 'react-native';
@@ -25,6 +26,7 @@ const FloatingActionButton: React.FC<Props> = (props: Props) => {
 
   const isDarkMode = useColorScheme() === 'dark';
 
+  const [keyboardActive, setKeyboardActive] = useState<boolean>(false);
   const [margin, setMargin] = useState<number>(0);
 
   const buttonColors = {
@@ -43,9 +45,11 @@ const FloatingActionButton: React.FC<Props> = (props: Props) => {
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', e => {
       setMargin(e.endCoordinates.height);
+      setKeyboardActive(true);
     });
     const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
       setMargin(0);
+      setKeyboardActive(false);
     });
 
     return () => {
@@ -87,24 +91,49 @@ const FloatingActionButton: React.FC<Props> = (props: Props) => {
         </TouchableOpacity>
       </View>
       {enableCreatePostPopUp && (
-        <View
-          style={[
-            styles.createPostOverlay,
-            {
-              height: windowDimensions.height * 0.75 - margin,
-              backgroundColor: isDarkMode
-                ? Colors.backgroundDarkDim
-                : Colors.backgroundLight,
-              shadowColor: isDarkMode ? Colors.shadowDark : Colors.shadowLight,
-            },
-          ]}>
-          <ScrollView>
-            <TouchableOpacity onPress={() => setEnableCreatePostPopUp(false)}>
-              <Text style={{color: 'black'}}>Close Popup</Text>
-            </TouchableOpacity>
-            <TextInput placeholder="hey there" />
-          </ScrollView>
-        </View>
+        <TouchableWithoutFeedback
+          onPress={e => {
+            const {pageX, pageY} = e.nativeEvent;
+            const bounds = {
+              x: (windowDimensions.width - windowDimensions.width * 0.8) / 2,
+              y:
+                (windowDimensions.height -
+                  (windowDimensions.height * 0.75 - margin)) /
+                2,
+            };
+            if (
+              pageX < bounds.x ||
+              pageX > bounds.x + windowDimensions.width * 0.8 ||
+              pageY < bounds.y ||
+              pageY >
+                windowDimensions.height * 0.75 -
+                  margin +
+                  (keyboardActive ? 0 : bounds.y)
+            ) {
+              /* Touch event detected out of the bounds of popup */
+              setEnableCreatePostPopUp(false);
+            }
+          }}>
+          <View style={styles.createPostOverlayWrapper}>
+            <View
+              style={[
+                styles.createPostOverlay,
+                {
+                  height: windowDimensions.height * 0.75 - margin,
+                  backgroundColor: isDarkMode
+                    ? Colors.backgroundDarkDim
+                    : Colors.backgroundLight,
+                  shadowColor: isDarkMode
+                    ? Colors.shadowDark
+                    : Colors.shadowLight,
+                },
+              ]}>
+              <ScrollView>
+                <TextInput placeholder="hey there" />
+              </ScrollView>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
       )}
     </>
   );
@@ -137,11 +166,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     elevation: 10,
     margin: 10,
-    left: windowDimensions.width * 0.1,
+    left: windowDimensions.width * 0.075,
     top: windowDimensions.height * 0.125,
     width: windowDimensions.width * 0.8,
     //height: windowDimensions.height * .75,
     borderRadius: 10,
+  },
+  createPostOverlayWrapper: {
+    position: 'absolute',
+    width: windowDimensions.width,
+    height: windowDimensions.height,
   },
 });
 
