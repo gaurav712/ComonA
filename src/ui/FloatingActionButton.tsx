@@ -29,7 +29,11 @@ const FloatingActionButton: React.FC<Props> = (props: Props) => {
 
   const buttonColors = {
     backgroundColor: isDarkMode ? 'grey' : Colors.backgroundLight,
-    shadowColor: isDarkMode ? Colors.shadowDark : Colors.shadowLight,
+    shadowColor: enableCreatePostPopUp
+      ? 'transparent'
+      : isDarkMode
+      ? Colors.shadowDark
+      : Colors.shadowLight,
   };
 
   const handleCreatePost = () => {
@@ -53,7 +57,7 @@ const FloatingActionButton: React.FC<Props> = (props: Props) => {
   return (
     <>
       <View
-        style={[styles.container, {opacity: enableCreatePostPopUp ? 0.3 : 1}]}
+        style={[styles.container, {opacity: enableCreatePostPopUp ? 0.1 : 1}]}
         pointerEvents={enableCreatePostPopUp ? 'none' : 'auto'}>
         <TouchableOpacity
           style={[styles.floatingButton, {...buttonColors}]}
@@ -86,7 +90,13 @@ const FloatingActionButton: React.FC<Props> = (props: Props) => {
         <View
           style={[
             styles.createPostOverlay,
-            {height: windowDimensions.height * 0.75 - margin},
+            {
+              height: windowDimensions.height * 0.75 - margin,
+              backgroundColor: isDarkMode
+                ? Colors.backgroundDarkDim
+                : Colors.backgroundLight,
+              shadowColor: isDarkMode ? Colors.shadowDark : Colors.shadowLight,
+            },
           ]}>
           <ScrollView>
             <TouchableOpacity onPress={() => setEnableCreatePostPopUp(false)}>
@@ -125,8 +135,6 @@ const styles = StyleSheet.create({
   },
   createPostOverlay: {
     position: 'absolute',
-    backgroundColor: 'white',
-    shadowColor: 'black',
     elevation: 10,
     margin: 10,
     left: windowDimensions.width * 0.1,

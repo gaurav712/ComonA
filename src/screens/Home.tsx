@@ -72,7 +72,11 @@ const Home: React.FC = () => {
                 : Colors.backgroundLight,
               borderBottomLeftRadius: suggestionActive ? 0 : 20,
               borderBottomRightRadius: suggestionActive ? 0 : 20,
-              shadowColor: isDarkTheme ? Colors.shadowDark : Colors.shadowLight,
+              shadowColor: enableCreatePostPopUp
+                ? 'transparent'
+                : isDarkTheme
+                ? Colors.shadowDark
+                : Colors.shadowLight,
             },
           ]}
         />
