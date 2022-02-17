@@ -1,5 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
+  Animated,
   Dimensions,
   Keyboard,
   ScrollView,
@@ -13,6 +14,7 @@ import {
 } from 'react-native';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '../common/Colors';
+import ThemedTextInput from './ThemedTextInput';
 
 interface Props {
   enableCreatePostPopUp: boolean;
@@ -29,6 +31,17 @@ const FloatingActionButton: React.FC<Props> = (props: Props) => {
   const [keyboardActive, setKeyboardActive] = useState<boolean>(false);
   const [margin, setMargin] = useState<number>(0);
 
+  /* Animation Values */
+  const createPostPopupAnimatedWidth = useRef(new Animated.Value(0)).current;
+  const createPostPopupAnimatedHeight = useRef(new Animated.Value(0)).current;
+  const createPostPopupAnimatedXOffset = useRef(
+    new Animated.Value(windowDimensions.width / 2),
+  ).current;
+  const createPostPopupAnimatedYOffset = useRef(
+    new Animated.Value(windowDimensions.height / 2),
+  ).current;
+  const createPostPopupAnimatedOpacity = useRef(new Animated.Value(0)).current;
+
   const buttonColors = {
     backgroundColor: isDarkMode ? 'grey' : Colors.backgroundLight,
     shadowColor: enableCreatePostPopUp
@@ -40,6 +53,31 @@ const FloatingActionButton: React.FC<Props> = (props: Props) => {
 
   const handleCreatePost = () => {
     setEnableCreatePostPopUp(true);
+    Animated.parallel([
+      Animated.spring(createPostPopupAnimatedWidth, {
+        toValue: windowDimensions.width * 0.8,
+        useNativeDriver: false,
+      }),
+      Animated.spring(createPostPopupAnimatedHeight, {
+        toValue: windowDimensions.height * 0.75 - margin,
+        useNativeDriver: false,
+      }),
+      Animated.spring(createPostPopupAnimatedXOffset, {
+        toValue: (windowDimensions.width - windowDimensions.width * 0.8) / 2,
+        useNativeDriver: false,
+      }),
+      Animated.spring(createPostPopupAnimatedYOffset, {
+        toValue:
+          (windowDimensions.height -
+            (windowDimensions.height * 0.75 - margin)) /
+          2,
+        useNativeDriver: false,
+      }),
+      Animated.timing(createPostPopupAnimatedOpacity, {
+        toValue: 1,
+        useNativeDriver: false,
+      }),
+    ]).start();
   };
 
   useEffect(() => {
@@ -111,15 +149,49 @@ const FloatingActionButton: React.FC<Props> = (props: Props) => {
                   (keyboardActive ? 0 : bounds.y)
             ) {
               /* Touch event detected out of the bounds of popup */
-              setEnableCreatePostPopUp(false);
+              Animated.parallel([
+                Animated.timing(createPostPopupAnimatedWidth, {
+                  toValue: 0,
+                  duration: 200,
+                  useNativeDriver: false,
+                }),
+                Animated.timing(createPostPopupAnimatedHeight, {
+                  toValue: 0,
+                  duration: 200,
+                  useNativeDriver: false,
+                }),
+                Animated.timing(createPostPopupAnimatedXOffset, {
+                  toValue: windowDimensions.width / 2,
+                  duration: 200,
+                  useNativeDriver: false,
+                }),
+                Animated.timing(createPostPopupAnimatedYOffset, {
+                  toValue: (windowDimensions.height - margin) / 2,
+                  duration: 200,
+                  useNativeDriver: false,
+                }),
+                Animated.timing(createPostPopupAnimatedOpacity, {
+                  toValue: 0,
+                  duration: 200,
+                  useNativeDriver: false,
+                }),
+              ]).start(() => setEnableCreatePostPopUp(false));
+
+              //setEnableCreatePostPopUp(false);
             }
           }}>
           <View style={styles.createPostOverlayWrapper}>
-            <View
+            <Animated.View
               style={[
                 styles.createPostOverlay,
                 {
-                  height: windowDimensions.height * 0.75 - margin,
+                  height: keyboardActive
+                    ? windowDimensions.height * 0.75 - margin
+                    : createPostPopupAnimatedHeight,
+                  width: createPostPopupAnimatedWidth,
+                  left: createPostPopupAnimatedXOffset,
+                  top: createPostPopupAnimatedYOffset,
+                  opacity: createPostPopupAnimatedOpacity,
                   backgroundColor: isDarkMode
                     ? Colors.backgroundDarkDim
                     : Colors.backgroundLight,
@@ -129,9 +201,12 @@ const FloatingActionButton: React.FC<Props> = (props: Props) => {
                 },
               ]}>
               <ScrollView>
-                <TextInput placeholder="hey there" />
+                <ThemedTextInput placeholder="Enter Text..." />
+                <ThemedTextInput placeholder="Enter Text..." />
+                <ThemedTextInput placeholder="Enter Text..." />
+                <ThemedTextInput placeholder="Enter Text..." />
               </ScrollView>
-            </View>
+            </Animated.View>
           </View>
         </TouchableWithoutFeedback>
       )}
@@ -155,7 +230,6 @@ const styles = StyleSheet.create({
     marginHorizontal: windowDimensions.width * 0.05,
     marginVertical: windowDimensions.height * 0.0125,
     elevation: 10,
-    //backgroundColor: Colors.accent,
   },
   floatingButtonIcon: {
     textShadowOffset: {width: 0, height: 1.5},
@@ -165,11 +239,6 @@ const styles = StyleSheet.create({
   createPostOverlay: {
     position: 'absolute',
     elevation: 10,
-    margin: 10,
-    left: windowDimensions.width * 0.075,
-    top: windowDimensions.height * 0.125,
-    width: windowDimensions.width * 0.8,
-    //height: windowDimensions.height * .75,
     borderRadius: 10,
   },
   createPostOverlayWrapper: {
