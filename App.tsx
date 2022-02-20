@@ -5,6 +5,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import {Home, Login} from './src/screens';
 import Colors from './src/common/Colors';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 type NavigatorParams = {
   Login: undefined;
@@ -16,31 +17,33 @@ const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
-    <NavigationContainer
-      theme={{
-        ...DefaultTheme,
-        dark: isDarkMode ? true : false,
-        colors: {
-          ...DefaultTheme.colors,
-          background: isDarkMode
-            ? Colors.containerBgDark
-            : Colors.containerBgLight,
-        },
-      }}>
-      <StatusBar
-        backgroundColor={
-          isDarkMode
-            ? `${Colors.containerBgDark}9f`
-            : `${Colors.backgroundLight}9f`
-        }
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        translucent={true}
-      />
-      <NavigationStack.Navigator screenOptions={{headerShown: false}}>
-        <NavigationStack.Screen name="Home" component={Home} />
-        <NavigationStack.Screen name="Login" component={Login} />
-      </NavigationStack.Navigator>
-    </NavigationContainer>
+    <SafeAreaView style={{flex: 1}}>
+      <NavigationContainer
+        theme={{
+          ...DefaultTheme,
+          dark: isDarkMode ? true : false,
+          colors: {
+            ...DefaultTheme.colors,
+            background: isDarkMode
+              ? Colors.containerBgDark
+              : Colors.containerBgLight,
+          },
+        }}>
+        <StatusBar
+          backgroundColor={
+            isDarkMode
+              ? `${Colors.containerBgDark}9f`
+              : `${Colors.backgroundLight}9f`
+          }
+          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+          translucent={true}
+        />
+        <NavigationStack.Navigator screenOptions={{headerShown: false}}>
+          <NavigationStack.Screen name="Home" component={Home} />
+          <NavigationStack.Screen name="Login" component={Login} />
+        </NavigationStack.Navigator>
+      </NavigationContainer>
+    </SafeAreaView>
   );
 };
 
