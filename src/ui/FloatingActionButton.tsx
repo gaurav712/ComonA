@@ -230,6 +230,11 @@ const styles = StyleSheet.create({
     marginHorizontal: windowDimensions.width * 0.05,
     marginVertical: windowDimensions.height * 0.0125,
     elevation: 10,
+    shadowOffset: {
+      height: 2,
+      width: 0,
+    },
+    shadowOpacity: 0.4,
   },
   floatingButtonIcon: {
     textShadowOffset: {width: 0, height: 1.5},
@@ -240,6 +245,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     elevation: 10,
     borderRadius: 10,
+    shadowOffset: {
+      height: 2,
+      width: 0,
+    },
+    shadowOpacity: 0.4,
   },
   createPostOverlayWrapper: {
     position: 'absolute',

@@ -151,6 +151,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     borderRadius: 20,
     elevation: 10,
+    shadowOffset: {
+      height: 2,
+      width: 0,
+    },
+    shadowOpacity: 0.4,
   },
   suggestions: {
     justifyContent: 'center',
@@ -159,6 +164,11 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     elevation: 10,
+    shadowOffset: {
+      height: 2,
+      width: 0,
+    },
+    shadowOpacity: 0.4,
   },
   postsContainer: {
     marginVertical: 20,
