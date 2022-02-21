@@ -3,6 +3,7 @@ import {
   Animated,
   Dimensions,
   Keyboard,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +13,7 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '../common/Colors';
 import ThemedTextInput from './ThemedTextInput';
@@ -42,6 +44,10 @@ const FloatingActionButton: React.FC<Props> = (props: Props) => {
   ).current;
   const createPostPopupAnimatedOpacity = useRef(new Animated.Value(0)).current;
 
+  /* Calculate status bar height in iOS */
+  const safeAreaInsets = useSafeAreaInsets().top;
+  const [statusBarHeight, setStatusBarHeight] = useState<number>(0);
+
   const buttonColors = {
     backgroundColor: isDarkMode ? 'grey' : Colors.backgroundLight,
     shadowColor: enableCreatePostPopUp
@@ -50,6 +56,10 @@ const FloatingActionButton: React.FC<Props> = (props: Props) => {
       ? Colors.shadowDark
       : Colors.shadowLight,
   };
+
+  useEffect(() => {
+    if (statusBarHeight === 0) setStatusBarHeight(safeAreaInsets);
+  }, [safeAreaInsets]);
 
   const handleCreatePost = () => {
     setEnableCreatePostPopUp(true);
@@ -180,7 +190,11 @@ const FloatingActionButton: React.FC<Props> = (props: Props) => {
               //setEnableCreatePostPopUp(false);
             }
           }}>
-          <View style={styles.createPostOverlayWrapper}>
+          <View
+            style={[
+              styles.createPostOverlayWrapper,
+              {top: Platform.OS === 'ios' ? -statusBarHeight : 0},
+            ]}>
             <Animated.View
               style={[
                 styles.createPostOverlay,
